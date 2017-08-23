@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QPushButton" name="loginButton">
    <property name="geometry">
     <rect>
@@ -26,6 +29,9 @@
     <font>
      <family>Source Code Pro</family>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
    <property name="text">
     <string>Login</string>
@@ -42,8 +48,11 @@
    </property>
    <property name="font">
     <font>
-     <family>Source Code Pro</family>
+     <family>Segoe UI</family>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -127,6 +136,9 @@
      <family>Agency FB</family>
      <pointsize>6</pointsize>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">

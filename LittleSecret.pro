@@ -41,3 +41,6 @@ HEADERS += \
 FORMS += \
         widget.ui \
     dialog.ui
+
+RESOURCES += \
+    resourse.qrc

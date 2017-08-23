@@ -282,6 +282,41 @@ void Widget::on_rootTable_clicked(const QModelIndex &index)
     while(query.next())
     {
         accountItemModel->setItem(accountCount++, 0, new QStandardItem(query.value(4).toString()));
+        checkTime(query, accountCount - 1);
+    }
+}
+
+void Widget::checkTime(QSqlQuery &query, int row)
+{
+    QDateTime currentTime = QDateTime::currentDateTime();
+    QDateTime dateTime = QDateTime::fromString(query.value(6).toString(), "yyyy-MM-dd hh:mm:ss");
+    int flag;
+    if(dateTime.addSecs(5).secsTo(currentTime) < 0)
+        flag = 0;
+    else if(dateTime.addSecs(10).secsTo(currentTime) < 0)
+        flag = 1;
+    else if(dateTime.addSecs(15).secsTo(currentTime) < 0)
+        flag = 2;
+    else
+        flag = 3;
+    QColor niceGreen(175, 255, 175);
+    QColor niceYellow(240, 255, 165);
+    QColor niceOrange(255, 200, 100);
+    QColor niceRed(255, 100, 100);
+    switch(flag)
+    {
+    case 0:
+        accountItemModel->item(row)->setBackground(niceGreen);
+        break;
+    case 1:
+        accountItemModel->item(row)->setBackground(niceYellow);
+        break;
+    case 2:
+        accountItemModel->item(row)->setBackground(niceOrange);
+        break;
+    case 3:
+        accountItemModel->item(row)->setBackground(niceRed);
+        break;
     }
 }
 
@@ -302,8 +337,6 @@ void Widget::on_passwordEdit_textChanged(const QString &arg1)
 
     ui->saveBuuton->setEnabled(true);
 
-    qDebug() << arg1;
-    qDebug() << checkPassword(arg1);
     switch(checkPassword(arg1))
     {
     case 0:
@@ -343,12 +376,22 @@ void Widget::on_accountTable_clicked(const QModelIndex &index)
                 arg(userAccount).arg(catalogue_1).arg(catalogue_2);
         QSqlQuery query;
         query.exec(s);
-        while(query.next())
+        if(query.first())
         {
+            int row = ui->accountTable->currentIndex().row();
+            accountItemModel->setItem(row, 0, new QStandardItem(query.value(4).toString()));
+            checkTime(query, row);
             QStringList list = query.value(5).toString().split("\a");
             ui->accountEdit->setText(list[0]);
             ui->passwordEdit->setText(list[1]);
             ui->urlEdit->setText(list[2]);
+
+            QDateTime currentTime = QDateTime::currentDateTime();
+            QDateTime dateTime = QDateTime::fromString(query.value(6).toString(), "yyyy-MM-dd hh:mm:ss");
+            if(dateTime.addSecs(15).secsTo(currentTime) > 0)
+            {
+                accountItemModel->item(row)->setToolTip("You have kept this password for 1 year. Please modify it.");
+            }
         }
     }
 
@@ -394,8 +437,10 @@ void Widget::on_saveBuuton_clicked()
     }
     else
     {
-        s = QString("insert into user values(%1, '%2', '%3', '%4', '%5', '%6') ").arg(++id).arg(userAccount).
-                arg(userPassword).arg(catalogue_1).arg(catalogue_2).arg(data);
+        QDateTime currentTime = QDateTime::currentDateTime();
+        QString temp = currentTime.toString("yyyy-MM-dd hh:mm:ss");
+        s = QString("insert into user values(%1, '%2', '%3', '%4', '%5', '%6', '%7') ").arg(++id).arg(userAccount).
+                arg(userPassword).arg(catalogue_1).arg(catalogue_2).arg(data).arg(temp);
         query.exec(s);
     }
 
@@ -415,7 +460,6 @@ void Widget::on_setRandomAccount_clicked()
         QChar nextChar = possibleCharacters.at(j);
         randomString.append(nextChar);
     }
-    qDebug()<<randomString;
     ui->accountEdit->setText(randomString);
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(randomString);
@@ -434,7 +478,6 @@ void Widget::on_setRandomPassword_clicked()
         QChar nextChar = possibleCharacters.at(j);
         randomString.append(nextChar);
     }
-    qDebug()<<randomString;
     ui->passwordEdit->setText(randomString);
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(randomString);

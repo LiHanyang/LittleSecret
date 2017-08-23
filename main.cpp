@@ -10,11 +10,11 @@ int main(int argc, char *argv[])
     db.setDatabaseName("dbname");
     db.open();
     QString s = QString("create table user(id int primary key, name varchar(50), passwd varchar(50),"
-                            "catalogue_1 varchar(50), catalogue_2 varchar(50), data varchar(100))");
+                            "catalogue_1 varchar(50), catalogue_2 varchar(50), data varchar(100), time varchar(100))");
     QSqlQuery query;
     query.exec(s);
 
-    s = QString("insert into user values(0, NULL, NULL, NUll, NUll, NULL) ");
+    s = QString("insert into user values(0, NULL, NULL, NUll, NUll, NULL, NULL) ");
     query.exec(s);
 
     s = QString("select * from user");

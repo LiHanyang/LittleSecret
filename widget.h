@@ -9,7 +9,8 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QClipboard>
-#include <Qtime>
+#include <QDateTime>
+#include <QColor>
 #include "dialog.h"
 
 using namespace std;
@@ -50,6 +51,7 @@ private:
     void setRootTable();
     void setAccountTable();
     int checkPassword(const QString& password);
+    void checkTime(QSqlQuery &query, int row);
 
 private:
     Ui::Widget *ui;

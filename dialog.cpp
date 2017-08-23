@@ -79,7 +79,7 @@ void Dialog::on_submitButton_clicked()
 {
     QString uname = ui->newAccountEdit->text();
     QString upasswd = ui->newPasswordEdit->text();
-    QString s = QString("insert into user values(%1, '%2', '%3', NULL, NULL, NULL) ").arg(++id).arg(uname).arg(upasswd);
+    QString s = QString("insert into user values(%1, '%2', '%3', NULL, NULL, NULL, NULL) ").arg(++id).arg(uname).arg(upasswd);
     QSqlQuery query;
     bool ok = query.exec(s);
     QMessageBox box;
