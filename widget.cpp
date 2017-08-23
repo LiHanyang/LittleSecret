@@ -105,9 +105,52 @@ void Widget::on_exitButton_clicked()
 void Widget::on_rootAddButton_clicked()
 {
     bool ok;
-    catalogue_1 = QInputDialog::getText(this,"",
+    QString cata = QInputDialog::getText(this,"",
         tr("Please input your root name"),
         QLineEdit::Normal,"",&ok);
+    QSqlQuery query;
+    QString s = QString("select * from user where name=='%1' ").arg(userAccount);
+    query.exec(s);
+    query.first();
+    int count = 0;
+    for(int i = 0; i < rootCount; i++)
+    {
+        if(rootItemModel->item(i)->text() != cata)
+        {
+            continue;
+        }
+        ++count;
+        break;
+    }
+    if(0 == count)
+    {
+        catalogue_1 = cata;
+    }
+    else
+    {
+        int i = 0;
+        while(true)
+        {
+            QString temp = QString("%1 (%2)").arg(cata).arg(i + 2);
+            int tempCount = 0;
+            for(int j = 0; j < rootCount; j++)
+            {
+                if(rootItemModel->item(j)->text() != temp)
+                {
+                    continue;
+                }
+                ++tempCount;
+                break;
+            }
+            if(0 == tempCount)
+            {
+                catalogue_1 = temp;
+                break;
+            }
+            ++i;
+        }
+    }
+
     if(ok)
     {
         rootItemModel->setItem(rootCount++, 0, new QStandardItem(catalogue_1));
@@ -144,9 +187,47 @@ void Widget::on_accountAddButton_clicked()
     if(row >= 0)
     {
         bool ok;
-        catalogue_2 = QInputDialog::getText(this,"",
+        QString cata = QInputDialog::getText(this,"",
             tr("Please input your account name"),
             QLineEdit::Normal,"",&ok);
+        int count = 0;
+        for(int i = 0; i < accountCount; i++)
+        {
+            if(accountItemModel->item(i)->text() != cata)
+            {
+                continue;
+            }
+            ++count;
+            break;
+        }
+        if(0 == count)
+        {
+            catalogue_2 = cata;
+        }
+        else
+        {
+            int i = 0;
+            while(true)
+            {
+                QString temp = QString("%1 (%2)").arg(cata).arg(i + 2);
+                int tempCount = 0;
+                for(int j = 0; j < accountCount; j++)
+                {
+                    if(accountItemModel->item(j)->text() != temp)
+                    {
+                        continue;
+                    }
+                    ++tempCount;
+                    break;
+                }
+                if(0 == tempCount)
+                {
+                    catalogue_2 = temp;
+                    break;
+                }
+                ++i;
+            }
+        }
         if(ok)
         {
             accountItemModel->setItem(accountCount++, 0, new QStandardItem(catalogue_2));
@@ -195,15 +276,12 @@ void Widget::on_rootTable_clicked(const QModelIndex &index)
     ui->passwordEdit->clear();
     ui->urlEdit->clear();
     catalogue_1 = rootItemModel->item(index.row())->text();
-    QString s = QString("select * from user");
+    QString s = QString("select * from user where name=='%1' and catalogue_1=='%2' ").arg(userAccount).arg(catalogue_1);
     QSqlQuery query;
     query.exec(s);
     while(query.next())
     {
-        qDebug() << "ok";
-        qDebug() << query.value(3).toString();
-        if((userAccount == query.value(1).toString()) && (catalogue_1 == query.value(3).toString()))
-            accountItemModel->setItem(accountCount++, 0, new QStandardItem(query.value(4).toString()));
+        accountItemModel->setItem(accountCount++, 0, new QStandardItem(query.value(4).toString()));
     }
 }
 
@@ -261,20 +339,16 @@ void Widget::on_accountTable_clicked(const QModelIndex &index)
     if(0 != accountCount)
     {
         catalogue_2 = accountItemModel->item(index.row())->text();
-        QString s = QString("select * from user");
+        QString s = QString("select * from user where name=='%1' and catalogue_1=='%2' and catalogue_2=='%3' ").
+                arg(userAccount).arg(catalogue_1).arg(catalogue_2);
         QSqlQuery query;
         query.exec(s);
         while(query.next())
         {
-            if((userAccount == query.value(1).toString()) &&
-                    (catalogue_1 == query.value(3).toString()) &&
-                    (catalogue_2 == query.value(4).toString()))
-            {
-                QStringList list = query.value(5).toString().split("\a");
-                ui->accountEdit->setText(list[0]);
-                ui->passwordEdit->setText(list[1]);
-                ui->urlEdit->setText(list[2]);
-            }
+            QStringList list = query.value(5).toString().split("\a");
+            ui->accountEdit->setText(list[0]);
+            ui->passwordEdit->setText(list[1]);
+            ui->urlEdit->setText(list[2]);
         }
     }
 
@@ -305,12 +379,63 @@ int Widget::checkPassword(const QString& password)
 
 void Widget::on_saveBuuton_clicked()
 {
-    QString data = QString(" %1\a%2\a%3 ").
+    QString data = QString("%1\a%2\a%3").
             arg(ui->accountEdit->text()).arg(ui->passwordEdit->text()).arg(ui->urlEdit->text());
-    QString s = QString("insert into user values(%1, '%2', '%3', '%4', '%5', '%6') ").arg(++id).arg(userAccount).
-            arg(userPassword).arg(catalogue_1).arg(catalogue_2).arg(data);
+
     QSqlQuery query;
+    QString s = QString("select * from user where name=='%1' and catalogue_1=='%2' and catalogue_2=='%3' ").
+            arg(userAccount).arg(catalogue_1).arg(catalogue_2);
     query.exec(s);
+    if(query.first())
+    {
+        s = QString("update user set data=='%1' where name=='%2' and catalogue_1=='%3' and catalogue_2=='%4' ").
+                arg(data).arg(userAccount).arg(catalogue_1).arg(catalogue_2);
+        query.exec(s);
+    }
+    else
+    {
+        s = QString("insert into user values(%1, '%2', '%3', '%4', '%5', '%6') ").arg(++id).arg(userAccount).
+                arg(userPassword).arg(catalogue_1).arg(catalogue_2).arg(data);
+        query.exec(s);
+    }
 
     ui->saveBuuton->setEnabled(false);
+}
+
+void Widget::on_setRandomAccount_clicked()
+{
+    ui->accountEdit->setEnabled(true);
+    const QString possibleCharacters("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    const int randomStringLength = 10;
+    QString randomString;
+    qsrand(QTime::currentTime().msec());
+    for(int i=0; i<randomStringLength; i++)
+    {
+        int j = qrand() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(j);
+        randomString.append(nextChar);
+    }
+    qDebug()<<randomString;
+    ui->accountEdit->setText(randomString);
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(randomString);
+}
+
+void Widget::on_setRandomPassword_clicked()
+{
+    ui->passwordEdit->setEnabled(true);
+    const QString possibleCharacters(".!@0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    const int randomStringLength = 10;
+    QString randomString;
+    qsrand(QTime::currentTime().msec());
+    for(int i=0; i<randomStringLength; i++)
+    {
+        int j = qrand() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(j);
+        randomString.append(nextChar);
+    }
+    qDebug()<<randomString;
+    ui->passwordEdit->setText(randomString);
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(randomString);
 }

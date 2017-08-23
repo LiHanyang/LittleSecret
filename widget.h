@@ -8,6 +8,8 @@
 #include <vector>
 #include <QDebug>
 #include <QInputDialog>
+#include <QClipboard>
+#include <Qtime>
 #include "dialog.h"
 
 using namespace std;
@@ -38,8 +40,9 @@ private slots:
     void on_passwordEdit_textChanged(const QString &arg1);
     void on_urlEdit_textChanged(const QString &arg1);
     void on_accountTable_clicked(const QModelIndex &index);
-
     void on_saveBuuton_clicked();
+    void on_setRandomAccount_clicked();
+    void on_setRandomPassword_clicked();
 
 private:
     void setWindow();
@@ -58,6 +61,8 @@ private:
     int accountCount;
     QString catalogue_1;
     QString catalogue_2;
+    vector<int> rootRepeatCountVector;
+    vector<int> accountRepeatCountVector;
 
     friend class Dialog;
 };
