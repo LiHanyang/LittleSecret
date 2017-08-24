@@ -1,9 +1,1 @@
-<RCC>
-    <qresource prefix="/">
-        <file>QImage/t01674d5be8ea35c7df.jpg</file>
-        <file>QImage/t01a8a80f085855111b.jpg</file>
-        <file>QImage/t01d8e0c65c8c1aedce.jpg</file>
-        <file>QImage/t01204884bd74725243.jpg</file>
-        <file>QImage/1.png</file>
-    </qresource>
-</RCC>
+<RCC/>

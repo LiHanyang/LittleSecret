@@ -2,6 +2,7 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include <QLineEdit>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QStandardItem>
@@ -30,6 +31,9 @@ public:
     void getPassword(QString password);
     void firstShow();
 
+private:
+
+
 private slots:
     void on_exitButton_clicked();
     void on_rootAddButton_clicked();
@@ -45,6 +49,10 @@ private slots:
     void on_setRandomAccount_clicked();
     void on_setRandomPassword_clicked();
 
+    void on_searchCata_1_textChanged(const QString &arg1);
+
+    void on_searchCata_2_textChanged(const QString &arg1);
+
 private:
     void setWindow();
     void setUi();
@@ -52,6 +60,7 @@ private:
     void setAccountTable();
     int checkPassword(const QString& password);
     void checkTime(QSqlQuery &query, int row);
+    void isRepeated(QStandardItemModel *itemModel, int nCount, QString &catalogue, QString &cata);
 
 private:
     Ui::Widget *ui;
@@ -63,8 +72,8 @@ private:
     int accountCount;
     QString catalogue_1;
     QString catalogue_2;
-    vector<int> rootRepeatCountVector;
-    vector<int> accountRepeatCountVector;
+    QLineEdit *lineEdit_1;
+    QLineEdit *lineEdit_2;
 
     friend class Dialog;
 };
